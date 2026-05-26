@@ -11,7 +11,6 @@ async function registerUser(req, res) {
       {email}, 
       {username}
     ]
-
   });
 
   if(isUserAlreadyExist) {
