@@ -4,8 +4,6 @@ const { uploadFile } = require('../services/storage.service');
 const albumModel = require('../models/album.model.');
 
 
-
-
 async function addMusic(req, res){
 const {title} = req.body;
 
@@ -54,7 +52,11 @@ async function createAlbum(req, res) {
 }
 
 async function getAllMusics(req, res) {
-  const musics = await musicModel.find().populate('artist', 'username');
+  const musics = await musicModel
+  .find()
+  .skip(2)//skip this many then limit.
+  .limit(1)
+  .populate('artist', 'username');
 
   res.status(200).json({
    message: 'Musics retrieved successfully',
@@ -62,7 +64,30 @@ async function getAllMusics(req, res) {
 })
 }
 
-module.exports = { addMusic, createAlbum, getAllMusics };
+async function getAllAlbums(req, res) {
+  const albums = await albumModel.find().select("title artist ").populate('artist', 'username').populate('musics');
+  res.status(200).json({
+    message: 'Albums retrieved successfully',
+    albums: albums
+  });
+}
 
+async function getAlbumById(req, res) {
+  const  albumId = req.params;
 
-  
+  const album = await albumModel.findById(albumId).populate('artist', 'username').populate('musics');
+
+  return res.status(200).json({
+    message: 'Album retrieved successfully',
+    album: album
+  });
+}
+
+async function logoutUser(req, res) {
+  res.clearCookie('token');
+  res.status(200).json({
+    message: 'Logout successful'
+  });
+}
+
+module.exports = { addMusic, createAlbum, getAllMusics, getAllAlbums, getAlbumById, logoutUser };
